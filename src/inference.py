@@ -1,3 +1,6 @@
+
+"""module containing inference methods and could also run inference process"""
+
 import pandas as pd
 from src import utils
 from src import feature_eng, data_proc
@@ -6,6 +9,18 @@ from src.models.dnn import get_scaler
 import numpy as np
 import tensorflow as tf
 import argparse
+import sys
+from loguru import logger
+# logger.remove()
+# logger.add(    
+#     sys.stderr,
+#     format="{time:MMMM D, YYYY > HH:mm:ss!UTC} | {level} | {message} | {name} | {function} | {line} | {extra}",
+#     level="TRACE",
+#     backtrace=False,
+#     diagnose=False)
+logger.remove()
+logger.add(sys.stderr, level="TRACE")
+b = 'in inference'
 
 root_dir = utils.get_proj_root()
 past_data_path = root_dir.joinpath('data/processed/training.csv')
@@ -45,6 +60,7 @@ def get_past_hr_ft(lookup_dt, feature_name,  past_data):
         prev_val = past_data.loc[lookup_dt+pd.DateOffset(hours=-1), feature_name]
         # prev_val = past_data[past_data.index==lookup_dt+pd.DateOffset(hours=-1)].iloc[0][feature_name]
 
+
     if isinstance(prev_val, pd.Series):
         prev_val = prev_val[0]
 
@@ -59,6 +75,7 @@ def return_old_temps(dates, return_mean_temp=False) -> pd.DataFrame:
     if return_mean_temp:
         temp_ft_names.append('mean_temp')
 
+    # TODO: this function should take n as argument
     for name in temp_ft_names:
         df[name] = df.datetime.apply(lambda date: get_past_hr_ft(
         lookup_dt=feature_eng.back_n_yr(date, n=1), feature_name=name,
@@ -90,11 +107,24 @@ def select_temp_cols(temp_input):
 
 def init_df(dates, temps=None):
     
+    """ Intialize dataframe from input dates and temperature.
+
+    creates a dataframe with date and temperature columns from the dates and temps 
+    input.
+
+    Args:
+        dates: a list of dates
+        temps: a list of temperature. Default is None
+
+    Returns:
+        df: a dataframe with a date column and columns of temperature
+    """
     
     temp_ft_names = utils.load_value(root_dir.joinpath('feature_store/select_temp_cols.pkl'))
     
 
     if temps is None: # get from last year
+
         df = return_old_temps(dates=dates, return_mean_temp=True)
 
     elif temps.ndim ==1:
@@ -105,6 +135,7 @@ def init_df(dates, temps=None):
         df = select_temp_cols(temps)
         df['datetime'] = dates
 
+    logger.trace("initialized input dataframe")
     return df
 
 
@@ -120,7 +151,6 @@ future_temps = future_temp_data.iloc[:, 2:].values
 def order_inf_data_cols(data:pd.DataFrame):
     pre_inf_cols = utils.load_value(root_dir.joinpath('feature_store/pre_inf_train_ft_col_names.pkl'))
     
-    print(pre_inf_cols)
     data = data[pre_inf_cols]
     return data
 
@@ -139,7 +169,7 @@ def get_input():
     future_dates = future_temp_data.date + pd.to_timedelta(future_temp_data.hr, unit='h')
     future_dates = future_dates.values
     future_temps = future_temp_data.iloc[:, 2:].values
-    print(future_temp_data)
+
     inf_df = init_df(future_dates, future_temps)
     inf_df = feature_eng.make_featured_data(inf_df, training=False, drop_temp_cols=False)
     inf_df = order_inf_data_cols(inf_df)
@@ -158,7 +188,9 @@ def get_last_n_rows_train_data(n, return_load=True):
 
     return hist_data
 
-def get_dnn_predictions(inf_df:pd.DataFrame, model):
+def get_dnn_predictions(inf_df:pd.DataFrame):
+
+    model = utils.load_model(root_dir.joinpath('models/dnn'))
 
     dnn_train_params = utils.load_value(fname=root_dir.joinpath('models/train_params_dnn.pkl'))
     dnn_train_params = DNNParams(**dnn_train_params)
@@ -207,7 +239,9 @@ def get_dnn_predictions(inf_df:pd.DataFrame, model):
     return pred_data
 
 
-def get_gam_predictions(df:pd.DataFrame, model):
+def get_gam_predictions(df:pd.DataFrame):
+
+    model = utils.load_model(root_dir.joinpath('models/linear-gam-model.pkl'))
 
     pred_data = pd.DataFrame({'datetime':df.index.values,
                           'load':pd.NA})
@@ -239,20 +273,31 @@ def get_pred_error(pred_load):
 
     from sklearn.metrics import mean_absolute_percentage_error
 
-    err= mean_absolute_percentage_error(y_true=actual_vals.Load, y_pred=pred_load)
+    err= mean_absolute_percentage_error(y_true=actual_vals.Load[:30], y_pred=pred_load)
     return err
 
-def main(model_name):
-    inf_df = get_input()
+def run_inf(model_name, inf_df):
     if model_name == 'linear_gam':
-        model = utils.load_model(root_dir.joinpath('models/linear-gam-model.pkl'))
-        pred_data = get_gam_predictions(inf_df, model=model)
+        pred_data = get_gam_predictions(inf_df)
     elif model_name == 'dnn':
-        model = utils.load_model(root_dir.joinpath('models/dnn'))
-        pred_data = get_dnn_predictions(inf_df, model=model)
+        pred_data = get_dnn_predictions(inf_df)
+    return pred_data
 
-    print(pred_data)
-    print(get_pred_error(pred_data.load))
+def main(model_name):
+    inf_df = get_input()[:30]
+    # if model_name == 'linear_gam':
+    #     # model = utils.load_model(root_dir.joinpath('models/linear-gam-model.pkl'))
+    #     pred_data = get_gam_predictions(inf_df)
+    # elif model_name == 'dnn':
+    #     # model = utils.load_model(root_dir.joinpath('models/dnn'))
+    #     pred_data = get_dnn_predictions(inf_df)
+    pred_data = run_inf(model_name=model_name, inf_df=inf_df)
+
+    pred_error = get_pred_error(pred_data.load)
+    # pred_data_logger = logger.bind(pred_error=pred_error)
+    # pred_data_logger.info("dataframe of prediction \n {pred_error}", pred_error=pred_error)
+    # print(pred_data)
+    print(pred_error)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='inference parser')

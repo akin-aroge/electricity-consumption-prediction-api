@@ -3,6 +3,13 @@ import numpy as np
 from pandas.tseries.holiday import USFederalHolidayCalendar as hol_calendar
 from src import utils, feature_eng
 import pandas as pd
+from loguru import logger
+import sys
+
+    # logger.remove()
+    # logger.add(sys.stderr, level="INFO")   
+# logger.remove()
+logger.add(sys.stderr, level="ERROR") 
 
 root_dir = utils.get_proj_root()
 
@@ -102,9 +109,23 @@ def make_train_features(df:pd.DataFrame, training=True, **kwargs) -> pd.DataFram
         df.to_csv(path_or_buf=root_dir.joinpath('feature_store/hist_feat_data.csv'))
     return df
 
-
+b = 'in feature_eng'
 
 def make_featured_data(df:pd.DataFrame, training:bool, drop_temp_cols:bool, **kwargs):
+    """ Make feature dataframce for training or inference from initialized input dataframe.
+    
+    Creates a dataframe with the necessary features for training or inference. Number of
+    columns will depend on whether call is made with training set to True of False.
+
+    Args:
+        df: input dataframe of date and temperature columns
+        training: a boolean value determining whether function is called for training or inference
+        drop_temp_cols: a boolean determining whether to trim the number of temperature features
+        kwargs: other keyword arguments
+
+    Returns:
+        df: returns a dataframe of features
+    """
 
     if drop_temp_cols:
         temp_corr_thresh = kwargs.get('thresh', 0.96)
@@ -136,7 +157,11 @@ def make_featured_data(df:pd.DataFrame, training:bool, drop_temp_cols:bool, **kw
 
         col_names_pre_inf.remove('load')
         utils.save_value(col_names_pre_inf, root_dir.joinpath('feature_store/pre_inf_train_ft_col_names.pkl'))
-
+    
+    print(b)   
+    logger.remove()
+    logger.add(sys.stderr, level="ERROR") 
+    logger.info("made feature dataset")
 
     return df
     

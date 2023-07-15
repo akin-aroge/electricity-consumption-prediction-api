@@ -11,6 +11,10 @@ import pandas as pd
 from sklearn.metrics import mean_absolute_percentage_error
 from src.models import dnn
 import matplotlib.pyplot as plt
+import sys
+from loguru import logger
+
+
 
 root_dir = utils.get_proj_root()
 # max_year = 2007
@@ -28,7 +32,7 @@ class GTrainParams:
 @dataclass
 class LinGamParams(GTrainParams):
     lams: np.ndarray
-    name = 'lingam'
+    name = 'linear_gam'
 
 @dataclass
 class DNNParams(GTrainParams):
@@ -49,6 +53,7 @@ def get_train_data(path:pathlib.Path):
     try:
         train_df = pd.read_csv(path, parse_dates=[0], index_col=0)
     except FileNotFoundError:
+        logger.info("creating train data")
         load_temp = data_proc.init_dataset(load_dir=load_data_path, temp_dir=temp_data_path, 
                             max_year=GTrainParams.max_year)
         # train_df = feature_eng.make_train_features(load_temp)
@@ -106,6 +111,13 @@ def visualize_loss(history, title=None):
 
 def train(model='linear_gam', 
           data_path=GTrainParams.train_data_path, save=True):
+    
+    # TODO: let function take in only model name and other params like save
+    # there should be acces to GTrainParams
+    # model paramset should seat in model module and imported.
+
+    # TODO: make similar interfaces for model training
+    # while letting **keywords handle variations
 
     train_df = get_train_data(data_path)
     print('in train', train_df.columns, '\n', train_df.shape)
@@ -115,8 +127,8 @@ def train(model='linear_gam',
     if model == 'linear_gam':
         
         n_features = X_train.shape[1]
-        lams_pace = np.random.uniform(low=1e-3, high=1e3, size=(10, n_features))
-        model_params =  LinGamParams(name='linear_gam_model', lams=lams_pace)
+        lams_pace = np.random.uniform(low=1e-3, high=1e3, size=(100, n_features))
+        model_params =  LinGamParams(lams=lams_pace)
         model = gam_model.LinGam()
         model.train(X=X_train, y=y_train, **dataclasses.asdict(model_params))
         test_error = eval_model(model=model, X_test=X_test, y_test=y_test)
@@ -124,18 +136,19 @@ def train(model='linear_gam',
 
     elif model == 'dnn':
         model_params = DNNParams(lr=1e-4)
+         
         model, history = dnn.train_model(train_data=(X_train, y_train), val_data=(X_test, y_test),
                         **dataclasses.asdict(model_params))
-        utils.save_value(dataclasses.asdict(model_params),
-                          fname=root_dir.joinpath(f"models/train_params_{model_params.name}.pkl"))
+        
         # visualize_loss(history=history)
         test_error = history.history['val_mae'][-1]
-
+    utils.save_value(dataclasses.asdict(model_params),
+                          fname=root_dir.joinpath(f"models/{model_params.name}_train_params.pkl"))
     save_model(model=model, fname=root_dir.joinpath(f'models/{model_params.name}'))
         
     
     
-    # print(f"test error is: {test_error}")
+    print(f"test error is: {test_error}")
     # utils.save_value(model, fname=root_dir.joinpath(f'models/{model_params.name}.pkl'))
     # load_model = utils.load_value(root_dir.joinpath(f'models/{model_params.name}.pkl'))
     # print(load_model)
@@ -143,7 +156,7 @@ def train(model='linear_gam',
 
 
 def main(model_name):
-    model = train(model_name)
+    train(model_name)
     # print(utils.get_feature_names())
 
 if __name__ == '__main__':
