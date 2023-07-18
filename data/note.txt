@@ -1,0 +1,32 @@
+=== instructions ===
+1. You can only use the attached data we provided plus the federal holidays of United States. 
+2. see the ranking image for baseline comparison
+
+
+=== data ===
+- input: get date and temp, 
+    - also have access to historical data
+- create dataframe of datetime and temp
+- clean temp
+    - reduce to 6 of them
+    - for average check same time last year
+- get_date features
+- put togetther date and temp
+- more datetime feature
+    - get same hour period last week
+    - get same hour last year
+    - rolling a few days behing
+- load history features:
+    - get load last year same hour
+    - get load shifts
+    - get rolling load last few days
+- temp_features
+    - if temp size = 28
+        - set as temp and select relevant cols
+    - else (it will be 1):
+        - get other temperature from same time last year
+    - mean temp same hour last year
+    - mean temp_lag two hours
+
+=== general to do ====
+- remove date as index, it is not unique due to DST times
