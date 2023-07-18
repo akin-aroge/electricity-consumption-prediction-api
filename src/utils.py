@@ -45,7 +45,7 @@ def get_feature_names():
 def load_model(fname):
     try:
         model = tf.keras.models.load_model(fname)
-        print(model.summary())
+        # print(model.summary())
     except (ValueError, OSError):
         model = load_value(fname)
     return model

@@ -120,7 +120,7 @@ def train(model='linear_gam',
     # while letting **keywords handle variations
 
     train_df = get_train_data(data_path)
-    print('in train', train_df.columns, '\n', train_df.shape)
+    # print('in train', train_df.columns, '\n', train_df.shape)
 
     X_train, X_test, y_train, y_test = split_dataset(train_df, GTrainParams.test_size_frac)
     # if isinstance(model, pygam.LinearGAM):

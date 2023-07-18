@@ -4,6 +4,11 @@ from src import inference as inf
 from src import feature_eng, data_proc
 import altair as alt
 from src import utils
+from src.models import gam_model
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
 root_dir = utils.get_proj_root()
 
 
@@ -97,6 +102,66 @@ def get_true_vals(n_days):
     actual_vals = actual_vals.iloc[:n_pts]
     actual_vals['datetime'] = actual_vals.Date + pd.to_timedelta(actual_vals.Hour, unit='h')   
     return actual_vals
+
+def get_pred_data(n_days:int, model_name:str):
+    dates = generate_hr_dates_from_days(n_days=n_days)
+    temps = get_temp(n_days=n_days)
+    inf_df = form_inf_input(dates=dates, temps=temps)
+
+    pred_data = inf.run_inf(model_name=model_name, inf_df=inf_df)
+    actual_data = get_true_vals(n_days=n_days)
+    plot_data = pd.DataFrame({'datetime':pred_data.index.values, 
+                              'predicted': pred_data.load.values,
+                              'actual':actual_data.Load.values})
+    plot_data = plot_data.melt(id_vars='datetime', var_name='source', value_name='load')
+    return plot_data
+
+def plot_gam_partial_dependence(feature_idx, feature_name):
+    try:
+        model:gam_model.LinGam = utils.load_model(root_dir.joinpath('models/linear-gam-model.pkl')) 
+    except FileNotFoundError:
+        print("No model file found")
+
+    fig, ax = plt.subplots(figsize=(4,4))
+    model_term_idx = feature_idx
+    XX = model.generate_X_grid(term=model_term_idx)
+    ax.plot(XX[:, model_term_idx], model.partial_dependence(term=model_term_idx, X=XX))
+    ax.plot(XX[:, model_term_idx], model.partial_dependence(term=model_term_idx, X=XX, width=.95)[1], c='r', ls='--')
+
+    ax.set_xlabel(feature_name)
+    ax.set_ylabel('partial dependence')
+
+
+
+    return fig
+# def plot_gam_partial_dependence(n_features=4):
+
+
+
+#     try:
+#         model:gam_model.LinGam = utils.load_model(root_dir.joinpath('models/linear-gam-model.pkl')) 
+#     except FileNotFoundError:
+#         print("No model file found")
+    
+#     fig, axs = plt.subplots(1, n_features, figsize=(8*(n_features/2), 5))
+#     for i, term in enumerate(model.terms):
+
+#         if term.isintercept:
+#             continue
+#         try:
+#             axs = axs.flatten()
+#         except AttributeError:
+#             axs = axs
+#         ax = axs[i]
+#         XX = model.generate_X_grid(term=i)
+#         ax.plot(XX[:, i], gam_model.model.partial_dependence(term=i, X=XX), label=str(i))
+#         ax.plot(XX[:, i], gam_model.model.partial_dependence(term=i, X=XX, width=.95)[1], c='r', ls='--')
+
+#     return fig
+
+# def plot_pred_tseries(pred_data:pd.DataFrame):
+
+
 
 # start_date = '2008-01-01'
 # future_dates = pd.date_range(start=start_date, end='2008-12-31', freq='h', inclusive='left')+ pd.DateOffset(hours=1)

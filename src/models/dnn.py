@@ -97,7 +97,7 @@ def window_dataset(X, y, window_size, batch_size) -> tf.data.Dataset:
     # so N (X_rows) = N_labels+ws-1
     y = y[window_size-1:]  # label for window starting at X[0] -> y[w_size-1]
     X = X[:len(y)+window_size-1]
-    print('in window', X.shape, y.shape)
+    # print('in window', X.shape, y.shape)
         
     data = tf.keras.preprocessing.timeseries_dataset_from_array(
         data=X,
@@ -143,7 +143,7 @@ def train_model( train_data:tuple, lr:float, val_data=None, batch_size=32,
     X_train = X_scaler.transform(X_train)
     y_train = y_scaler.transform(y_train.reshape(-1, 1))
     train_data = window_dataset(X_train, y_train, window_size=window_size, batch_size=batch_size)
-    print('in tran_model', train_data.cardinality(), X_train.shape,(X_train.shape[0] - window_size + 1)/batch_size)
+    # print('in tran_model', train_data.cardinality(), X_train.shape,(X_train.shape[0] - window_size + 1)/batch_size)
     if val_data is not None:
         X_test, y_test = val_data
         X_test = X_scaler.transform(X_test)

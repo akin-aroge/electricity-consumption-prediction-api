@@ -10,6 +10,7 @@ import numpy as np
 import tensorflow as tf
 import argparse
 import sys
+from src.models import gam_model
 from loguru import logger
 # logger.remove()
 # logger.add(    
@@ -265,6 +266,9 @@ def get_gam_predictions(df:pd.DataFrame):
         pred_data.iloc[i]  = pred[0]
 
     return pred_data
+
+
+
 
 def get_pred_error(pred_load):
     actual_vals = pd.read_csv(root_dir.joinpath('data/eval_data/Solution.csv'), parse_dates=[0])
