@@ -1,8 +1,5 @@
 import streamlit as st
-import numpy as np
 import streamlit_utils as st_utils
-from src import inference as inf
-import pandas as pd
 from loguru import logger
 import sys
 from io import BytesIO
