@@ -1,12 +1,18 @@
 
+
+import sys
 import pandas as pd
-from src import inference as inf
-from src import feature_eng, data_proc
 import altair as alt
-from src import utils
-from src.models import gam_model
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+sys.path += ['../src']
+from src import inference as inf
+from src import feature_eng, data_proc
+
+from src import utils
+from src.models import gam_model
+
 
 
 root_dir = utils.get_proj_root()
