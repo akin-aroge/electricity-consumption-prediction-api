@@ -1,5 +1,5 @@
 import streamlit as st
-import streamlit_utils as st_utils
+from streamlit_utils import streamlit_utils as st_utils
 from loguru import logger
 import sys
 from io import BytesIO
