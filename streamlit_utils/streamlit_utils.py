@@ -8,8 +8,8 @@ import pathlib
 import seaborn as sns
 
 
-src_path = str(pathlib.Path().absolute().parent.joinpath('src'))
-sys.path.insert(1, src_path)
+# src_path = str(pathlib.Path().absolute().parent.joinpath('src'))
+# sys.path.insert(1, src_path)
 from src import inference as inf
 from src import feature_eng, data_proc
 
