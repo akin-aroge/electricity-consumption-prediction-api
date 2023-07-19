@@ -6,7 +6,7 @@ import altair as alt
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-sys.path.append('../..')
+sys.path.append('src')
 from ..src import inference as inf
 from src import inference as inf
 from src import feature_eng, data_proc
