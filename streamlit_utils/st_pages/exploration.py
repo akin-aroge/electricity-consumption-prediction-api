@@ -74,10 +74,9 @@ The figure shows a plot of hourly electricity demand.
     )
 
     load_data_raw = data[['load', 'datetime']].set_index('datetime') 
-    load_data_raw.load.plot()
-    ax = plt.gca()
+    fig, ax = plt.subplots()
+    load_data_raw.load.plot(ax=ax)
     ax.set_ylabel('Load in kWh')
-    fig = plt.gcf()
     st_img_show(fig)
 
     st.write(
@@ -113,12 +112,9 @@ def sec_temp_timeseries( data:pd.DataFrame, temp_stns_filter=False):
         data = data[temp_col_names]
 
     try:
-        data.plot(legend=True)
-
-
-        ax = plt.gca()
+        fig, ax = plt.subplots()
+        data.plot(legend=True, ax=ax)
         ax.set_ylabel("Temperature, $^\circ$F")
-        fig = plt.gcf()
         st_img_show(fig)
 
         st.write(
@@ -155,10 +151,8 @@ def sec_demand_by_month(data:pd.DataFrame):
     temp_df = (data
                .assign(month = data.datetime.dt.month))
     fig, ax = plt.subplots()
-    sns.boxplot(x='month', y='load', data=temp_df, color='w')
-    ax = plt.gca()
+    sns.boxplot(x='month', y='load', data=temp_df, color='w', ax=ax)
     set_plot_labels(ax, xlabel="Month")
-    fig = plt.gcf()
     st_img_show(fig)
     st.write(
         """
@@ -186,10 +180,9 @@ def sec_demand_by_wkday(data:pd.DataFrame):
            .assign(day_of_wk = data.datetime.dt.day_name())
            )
     fig, ax = plt.subplots()
-    sns.boxplot(x='day_of_wk', y='load', data=temp_df, color='w')
+    sns.boxplot(x='day_of_wk', y='load', data=temp_df, color='w', ax=ax)
     set_plot_labels(ax, xlabel="Weekday")
     st_img_show(fig)
-
     st.write(
         """
 Interestingly, there appears to be no significant differnces in the distribution of loads for 
@@ -209,7 +202,7 @@ in the eveninig.
            .assign(hr = data.datetime.dt.hour)
            )
     fig, ax = plt.subplots()
-    sns.boxplot(x='hr', y='load', data=temp_df, color='w')
+    sns.boxplot(x='hr', y='load', data=temp_df, color='w', ax=ax)
     set_plot_labels(ax, xlabel="hour")
     st_img_show(fig)
 
@@ -244,7 +237,7 @@ Let's examine the correlation between temperature and the demand
            .assign(month = data.datetime.dt.month)
            )
     fig, ax = plt.subplots()
-    sns.scatterplot(x='temp', y='load', data=temp_df, alpha=0.2, size=0.2, hue='month')
+    sns.scatterplot(x='temp', y='load', data=temp_df, alpha=0.2, size=0.2, hue='month', ax=ax)
     set_plot_labels(ax, xlabel="temp")
     st_img_show(fig)
     st.write(
