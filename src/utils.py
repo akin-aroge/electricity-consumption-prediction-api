@@ -4,10 +4,8 @@ import pathlib
 import tensorflow as tf
 
 
-
 class Pipe:
-
-    def __init__(self, fns:list):
+    def __init__(self, fns: list):
         self.fns = fns
 
     def join_pipe(self, another_pipe):
@@ -24,20 +22,23 @@ class Pipe:
 
 
 def save_value(value, fname):
-    with open(fname, 'wb') as f:
+    with open(fname, "wb") as f:
         pickle.dump(value, f)
 
+
 def load_value(fname):
-    with open(fname, 'rb') as f:
+    with open(fname, "rb") as f:
         value = pickle.load(f)
     return value
+
 
 def get_proj_root() -> pathlib.Path:
     return pathlib.Path(__file__).parent.parent
 
+
 def get_feature_names():
 
-    path = get_proj_root().joinpath('feature_store/train_ft_col_names.pkl')
+    path = get_proj_root().joinpath("feature_store/train_ft_col_names.pkl")
     ft_names = load_value(path)
     return ft_names
 
@@ -49,5 +50,3 @@ def load_model(fname):
     except (ValueError, OSError):
         model = load_value(fname)
     return model
-
-

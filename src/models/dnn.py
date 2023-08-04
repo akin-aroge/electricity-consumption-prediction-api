@@ -134,7 +134,7 @@ es_callback = tf.keras.callbacks.EarlyStopping(monitor="val_loss", min_delta=0, 
 
 def train_model( train_data:tuple, lr:float, val_data=None, batch_size=32,  
                 window_size=32, n_epochs=10, 
-                optimizer='adam', loss='huber',  early_stop=False) -> tuple[DNN, tf.keras.callbacks.History]:
+                optimizer='adam', loss='huber',  early_stop=False)  -> tuple[DNN, tf.keras.callbacks.History]:
     
     X_train, y_train = train_data
     X_scaler, y_scaler = adapt_scaler(X_train=X_train, y_train=y_train)
