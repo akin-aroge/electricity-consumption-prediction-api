@@ -1,18 +1,18 @@
 altair==5.0.1
 loguru==0.7.0
 matplotlib==3.5.1
-numpy
+numpy==1.24.3
 pandas==1.4.2
 pygam==0.9.0
 scikit_learn==1.0.2
 seaborn==0.11.2
-tensorflow
-streamlit
-protobuf
-pytest
-pylint
-jupyter
-pytest-cov
-nbval
+tensorflow==2.13.0
+streamlit==1.25.0
+protobuf==4.23.4
+pytest==7.4.0
+pylint==2.17.5
+jupyter==1.0.0
+pytest-cov==4.1.0
+nbval==0.10.0
 
 
