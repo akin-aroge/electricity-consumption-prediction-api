@@ -13,6 +13,6 @@ pytest
 pylint
 jupyter
 pytest-cov
-
+nbval
 
 
