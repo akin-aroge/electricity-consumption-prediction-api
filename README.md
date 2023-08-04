@@ -2,6 +2,7 @@
 
 An end-to-end pipeline using temperature data for prediction electricity demand.
 
+[![Makefile CI](https://github.com/akin-aroge/electricity-consumption-prediction-api/actions/workflows/main.yml/badge.svg)](https://github.com/akin-aroge/electricity-consumption-prediction-api/actions/workflows/main.yml)
 
 ## Project Description
 
