@@ -13,16 +13,16 @@ import seaborn as sns
 
 root_dir = utils.get_proj_root()
 
-load_data_path = root_dir.joinpath('data/raw_data/load_hist.csv')
-temp_data_path = root_dir.joinpath('data/raw_data/temp_hist.csv')
+load_data_path = root_dir.joinpath("data/raw_data/load_hist.csv")
+temp_data_path = root_dir.joinpath("data/raw_data/temp_hist.csv")
 max_year = 2007
 min_year = 2005
 # get data
 @st.cache_data
 def get_data():
-    load_temp_df = data_proc.init_dataset(load_dir=load_data_path,
-                                          temp_dir=temp_data_path,
-                                          max_year=max_year)
+    load_temp_df = data_proc.init_dataset(
+        load_dir=load_data_path, temp_dir=temp_data_path, max_year=max_year
+    )
     return load_temp_df
 
 
@@ -48,23 +48,30 @@ def main():
     sec_temp_load_corr(data=data)
     sec_temp_lags_corr(data=data)
 
+
 def year_slider():
 
-    value = st.sidebar.slider(label="Set year interval:", min_value=min_year, 
-              max_value=max_year, value=(min_year, max_year))
+    value = st.sidebar.slider(
+        label="Set year interval:",
+        min_value=min_year,
+        max_value=max_year,
+        value=(min_year, max_year),
+    )
     return value
-    
+
+
 def filter_data_year(year_filter):
     load_temp = get_data()
     (select_min_year, select_max_year) = year_filter
 
-    
-    load_temp = load_temp[(load_temp.datetime < str(select_max_year+1)) & 
-                          (load_temp.datetime > str(select_min_year))
-                          ]
+    load_temp = load_temp[
+        (load_temp.datetime < str(select_max_year + 1))
+        & (load_temp.datetime > str(select_min_year))
+    ]
     return load_temp
 
-def sec_overall_load(data:pd.DataFrame):
+
+def sec_overall_load(data: pd.DataFrame):
     # st.write("""""## Demand Trend Over Time")
     st.write(
         """
@@ -73,10 +80,10 @@ The figure shows a plot of hourly electricity demand.
 """
     )
 
-    load_data_raw = data[['load', 'datetime']].set_index('datetime') 
+    load_data_raw = data[["load", "datetime"]].set_index("datetime")
     fig, ax = plt.subplots()
     load_data_raw.load.plot(ax=ax)
-    ax.set_ylabel('Load in kWh')
+    ax.set_ylabel("Load in kWh")
     st_img_show(fig)
 
     st.write(
@@ -89,14 +96,18 @@ temperature is closer to room temperature.
 """
     )
 
+
 def temp_stations():
     temp_stn_range = list(np.arange(1, 10))
-    temp_stn_idxs = st.sidebar.multiselect(label="Select temperature stations:",
-                                           options=temp_stn_range, 
-                                           default=temp_stn_range)
+    temp_stn_idxs = st.sidebar.multiselect(
+        label="Select temperature stations:",
+        options=temp_stn_range,
+        default=temp_stn_range,
+    )
     return temp_stn_idxs
 
-def sec_temp_timeseries( data:pd.DataFrame, temp_stns_filter=False):
+
+def sec_temp_timeseries(data: pd.DataFrame, temp_stns_filter=False):
 
     st.write(
         """
@@ -104,11 +115,11 @@ def sec_temp_timeseries( data:pd.DataFrame, temp_stns_filter=False):
         The figure shows a plot of hourly temperatures collected across select temperature stations.
         """
     )
-    data = data.drop(labels=['load'], axis=1).set_index('datetime')
+    data = data.drop(labels=["load"], axis=1).set_index("datetime")
 
     if temp_stns_filter:
         temp_stn_idx = temp_stations()
-        temp_col_names = ['t'+str(idx) for idx in temp_stn_idx]
+        temp_col_names = ["t" + str(idx) for idx in temp_stn_idx]
         data = data[temp_col_names]
 
     try:
@@ -131,27 +142,27 @@ def sec_temp_timeseries( data:pd.DataFrame, temp_stns_filter=False):
     except TypeError:
         st.write("select at least one temperature station to view.")
 
+
 def sec_demand_by_time():
     st.write(
         """
         ## Demand by Time
         In this section, the distribution across different time levels are examined.
         """
-
     )
 
-def sec_demand_by_month(data:pd.DataFrame):
+
+def sec_demand_by_month(data: pd.DataFrame):
     st.write(
-            """
+        """
             ### Demand by month of the year.
             The plot shows the distribution of the demand by the month of the year.
             """
     )
 
-    temp_df = (data
-               .assign(month = data.datetime.dt.month))
+    temp_df = data.assign(month=data.datetime.dt.month)
     fig, ax = plt.subplots()
-    sns.boxplot(x='month', y='load', data=temp_df, color='w', ax=ax)
+    sns.boxplot(x="month", y="load", data=temp_df, color="w", ax=ax)
     set_plot_labels(ax, xlabel="Month")
     st_img_show(fig)
     st.write(
@@ -169,18 +180,17 @@ This makes the month of the year an important predicitve feature.
 """
     )
 
-def sec_demand_by_wkday(data:pd.DataFrame):
+
+def sec_demand_by_wkday(data: pd.DataFrame):
     st.write(
         """
         ### Demand by day of the week.
         The plot shows the distribution  of the demand for weekday groups.
         """
     )
-    temp_df = (data.copy()
-           .assign(day_of_wk = data.datetime.dt.day_name())
-           )
+    temp_df = data.copy().assign(day_of_wk=data.datetime.dt.day_name())
     fig, ax = plt.subplots()
-    sns.boxplot(x='day_of_wk', y='load', data=temp_df, color='w', ax=ax)
+    sns.boxplot(x="day_of_wk", y="load", data=temp_df, color="w", ax=ax)
     set_plot_labels(ax, xlabel="Weekday")
     st_img_show(fig)
     st.write(
@@ -190,7 +200,8 @@ different days of the week.
 """
     )
 
-def sec_demand_by_hr(data:pd.DataFrame):
+
+def sec_demand_by_hr(data: pd.DataFrame):
     st.write(
         """
 ### Demand by hour of the day. 
@@ -198,11 +209,9 @@ Presumably, elctricity demand is relatively higher at times when people are most
 in the eveninig.
 """
     )
-    temp_df = (data.copy()
-           .assign(hr = data.datetime.dt.hour)
-           )
+    temp_df = data.copy().assign(hr=data.datetime.dt.hour)
     fig, ax = plt.subplots()
-    sns.boxplot(x='hr', y='load', data=temp_df, color='w', ax=ax)
+    sns.boxplot(x="hr", y="load", data=temp_df, color="w", ax=ax)
     set_plot_labels(ax, xlabel="hour")
     st_img_show(fig)
 
@@ -216,6 +225,7 @@ THis suggests a significant non-linear variability of load with hour which will 
 """
     )
 
+
 def sec_correlations():
     st.write(
         """
@@ -223,6 +233,7 @@ def sec_correlations():
 We would now look a few correlations.
 """
     )
+
 
 def sec_temp_load_corr(data):
     st.write(
@@ -232,12 +243,13 @@ Let's examine the correlation between temperature and the demand
 """
     )
 
-    temp_df = (data.copy()
-           .assign(temp = data.iloc[:, 4])
-           .assign(month = data.datetime.dt.month)
-           )
+    temp_df = (
+        data.copy().assign(temp=data.iloc[:, 4]).assign(month=data.datetime.dt.month)
+    )
     fig, ax = plt.subplots()
-    sns.scatterplot(x='temp', y='load', data=temp_df, alpha=0.2, size=0.2, hue='month', ax=ax)
+    sns.scatterplot(
+        x="temp", y="load", data=temp_df, alpha=0.2, size=0.2, hue="month", ax=ax
+    )
     set_plot_labels(ax, xlabel="temp")
     st_img_show(fig)
     st.write(
@@ -248,9 +260,9 @@ load and temperature.
 """
     )
 
+
 def sec_temp_lags_corr(data):
     st.write(
-
         """
         # Temperature Lag correlations
         From one hour to the next, the temperatrure is load demand is expected to drop only slightly which would 
@@ -258,17 +270,20 @@ def sec_temp_lags_corr(data):
         """
     )
 
-    temp_df = (data.copy()
-           .assign(lag1=data.load.shift(1))
-           .assign(lag2=data.load.shift(2))
-           .assign(lag7=data.load.shift(7))
-           .assign(lag24=data.load.shift(24))
-           )
-    fig, axs = plt.subplots(2,2)
-    sns.scatterplot(x='lag1', y='load', data=temp_df, alpha=0.2, size=0.2, ax=axs[0,0])
-    sns.scatterplot(x='lag2', y='load', data=temp_df, alpha=0.2, size=0.2, ax=axs[0,1])
-    sns.scatterplot(x='lag7', y='load', data=temp_df, alpha=0.2, size=0.2, ax=axs[1,0])
-    sns.scatterplot(x='lag24', y='load', data=temp_df, alpha=0.2, size=0.2, ax=axs[1,1])
+    temp_df = (
+        data.copy()
+        .assign(lag1=data.load.shift(1))
+        .assign(lag2=data.load.shift(2))
+        .assign(lag7=data.load.shift(7))
+        .assign(lag24=data.load.shift(24))
+    )
+    fig, axs = plt.subplots(2, 2)
+    sns.scatterplot(x="lag1", y="load", data=temp_df, alpha=0.2, size=0.2, ax=axs[0, 0])
+    sns.scatterplot(x="lag2", y="load", data=temp_df, alpha=0.2, size=0.2, ax=axs[0, 1])
+    sns.scatterplot(x="lag7", y="load", data=temp_df, alpha=0.2, size=0.2, ax=axs[1, 0])
+    sns.scatterplot(
+        x="lag24", y="load", data=temp_df, alpha=0.2, size=0.2, ax=axs[1, 1]
+    )
     # set_plot_labels(axs, xlabel="temp")
     fig.tight_layout()
     st_img_show(fig)
@@ -285,14 +300,13 @@ Depending on the type of model being used, lag features may be engineered
     )
 
 
-    
-
-def st_img_show(fig:matplotlib.figure.Figure):
+def st_img_show(fig: matplotlib.figure.Figure):
     buf = BytesIO()
-    fig.savefig(buf, format='png')
+    fig.savefig(buf, format="png")
     st.image(buf)
 
-def set_plot_labels(ax, xlabel='datetime', ylabel='load, kWh'):
+
+def set_plot_labels(ax, xlabel="datetime", ylabel="load, kWh"):
 
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)

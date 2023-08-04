@@ -20,7 +20,7 @@ install:
 		pip install -r pip_reqs.txt
 
 format:
-	black *.py
+	black .
 
 test:
 	python -m pytest --nbval notebook/03_data_exploration.ipynb
