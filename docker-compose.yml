@@ -1,0 +1,6 @@
+version: '3'
+services:
+  app:
+    image: elec-demand-pred
+    ports:
+      - 8501:8501

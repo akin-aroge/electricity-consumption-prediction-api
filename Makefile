@@ -25,5 +25,13 @@ format:
 test:
 	python -m pytest --nbval notebook/03_data_exploration.ipynb
 
+docker_build:
+	docker build -f Dockerfile -t "elec-demand-pred" .
+
+docker_run:
+	docker-compose  -f .\docker-compose.yml up -d
+
+docker_it:
+	docker run -it --rm elec-demand-pred  /bin/sh
 
 all: install format test
