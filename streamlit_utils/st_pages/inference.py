@@ -43,6 +43,14 @@ def pred_horizon():
 
 def tseries_plot_ui(plot_data, ui_model_name):
     st.markdown(f"## Predicted Load (using {ui_model_name})")
+    if ui_model_name == "Gen. Additive Model (GAM)":
+        st.write(
+            """
+            $$
+            y_i = \\beta_0  + f_1(temp.) + f_2(temp. \ lag) + f_3(hour) + f_4(month) + f_5(load lag) + f_6(weekend) + f_7(holiday)+..
+            $$
+    """
+        )
     show_actual_vals = st.checkbox("Show actual load values")
     chart = st_utils.get_chart(plot_data, show_true_vals=show_actual_vals)
     st.altair_chart(chart.interactive(), use_container_width=True)
