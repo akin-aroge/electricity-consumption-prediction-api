@@ -22,6 +22,11 @@ def main():
 
     st.sidebar.title("What to do")
     st.title("Electricity Demand Forecast")
+    st.write(
+        """
+    This work presents   time series analysis and modelling of electricity Demand
+    """
+    )
     st.caption(
         "Scource Code: [link](https://github.com/akin-aroge/electricity-consumption-prediction-api)"
     )

@@ -35,6 +35,12 @@ class LinGamParams(GTrainParams):
     lams: np.ndarray
     name = "linear_gam"
 
+@dataclass
+class XgboostParams(GTrainParams):
+    n_estimators: int = 100
+    learning_rate: float = 0.05
+    early_stopping_rounds: int = 50
+    verbose: bool = True
 
 @dataclass
 class DNNParams(GTrainParams):

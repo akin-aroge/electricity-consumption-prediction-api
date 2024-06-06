@@ -14,5 +14,6 @@ pylint==2.17.5
 jupyter==1.0.0
 pytest-cov==4.1.0
 nbval==0.10.0
+xgboost==2.0.0
 
 

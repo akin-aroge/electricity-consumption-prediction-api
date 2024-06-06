@@ -47,7 +47,7 @@ def tseries_plot_ui(plot_data, ui_model_name):
         st.write(
             """
             $$
-            y_i = \\beta_0  + f_1(temp.) + f_2(temp. \ lag) + f_3(hour) + f_4(month) + f_5(load lag) + f_6(weekend) + f_7(holiday)+..
+            y_i = \\beta_0  + f_1(temp.) + f_2(temp. \ lag) + f_3(hour) + f_4(month) + f_5(load \ lag) + f_6(weekend) + f_7(holiday)+..
             $$
     """
         )
